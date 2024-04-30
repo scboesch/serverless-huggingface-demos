@@ -14,6 +14,8 @@ includes [Amazon Elastic File System](https://aws.amazon.com/efs/) (EFS)
 storage that is attached to the Lambda functions to cache the
 pre-trained models and reduce inference latency.
 
+TBD: Update Architecture diagram
+
 ![Architecture diagram](serverless-hugging-face.png)
 In this architectural diagram:
 1.  Serverless inference is achieved by using Lambda functions that are
@@ -277,12 +279,66 @@ perform English to French translation:
 $ cdk deploy
 ```
 
-## The interface
+## The router lambda
 
+The code for the router lambda can be found in the ```router.py``` file in the 
+lambda directory. When the application is accessed via and HTTP GET, such was when 
+the enpoint is accessed in a web browser, the router lambda returns a simple 
+HTML form. 
 
+```python
+http_method = event.get('httpMethod')
+    
+if http_method == 'GET':
+    return {"statusCode": 200,
+        "headers": {"content-type": "text/html"},
+        "body": html}
+```
 
+TBD: Screenshot of a GET response
 
+Our simple HTML form is then designed to POST the contents of a text box 
+back to our router lambda whenever the submit button is pressed. When 
+the router lamba detects POST request, it checks to see if a specific 
+Docker lambda has been requested. If none is found in the request, it 
+defaults to using the ARN for the first Docker lambda passed via the
+environment variables for the router lambda.  
 
+```python
+elif http_method == 'POST':
+        body = json.loads(event['body'])
+        text = body['text']
+        functionARN = os.getenv("functionARN1")
+        if "functionARN" in body:
+            functionARN = body['functionARN']
+    
+        result = get_response(text, functionARN)
+```
+
+In the get_response method, the boto3 lambda client is used to call the Docker lambda
+identified by the ARN that is passed in. 
+
+```python
+def get_response(text, functionARN):
+        lambda_client = boto3.client('lambda')
+        try:
+            # Parameters to invoke the other Lambda function
+            response = lambda_client.invoke(
+                FunctionName=functionARN,  
+                InvocationType='RequestResponse', 
+                Payload=json.dumps({'text': text}) 
+            )
+
+            # Read and parse the response payload
+            response_payload = response['Payload'].read().decode('utf-8')
+            response_data = json.loads(response_payload)
+            return {
+                    'message': 'Invocation successful',
+                    'responseFromLambda': response_data
+                }
+```
+
+TBD: Screenshot of a POST response
 
 
 ## Cleaning up

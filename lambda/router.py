@@ -8,13 +8,13 @@ from botocore.exceptions import ClientError
 def handler(event, context):
     
     def get_response(text, functionARN):
+        lambda_client = boto3.client('lambda')
         try:
             # Parameters to invoke the other Lambda function
             response = lambda_client.invoke(
-                #FunctionName='arn:aws:lambda:us-east-1:326170511923:function:ServerlessHuggingFaceStack-sentiment2141F307-yKJiVXZ8MKml',  # Update with actual ARN
-                FunctionName=functionARN,  # Update with actual ARN
+                FunctionName=functionARN,  
                 InvocationType='RequestResponse',  # 'Event' for async, 'RequestResponse' for sync
-                Payload=json.dumps({'text': text})  # Your payload here
+                Payload=json.dumps({'text': text})
             )
 
             # Read and parse the response payload
@@ -24,7 +24,6 @@ def handler(event, context):
                     'message': 'Invocation successful',
                     'responseFromLambda': response_data
                 }
-        
         except Exception as e:
             return {
                     'message': 'Error invoking the function',
@@ -32,20 +31,7 @@ def handler(event, context):
         
                 }
                 
-    http_method = event.get('httpMethod')
-
-    if http_method == 'POST':
-        body = json.loads(event['body'])
-        text = body['text']
-        lambda_client = boto3.client('lambda')
-        functionARN = os.getenv("functionARN1")
-    
-        result = get_response(text, functionARN)
-        return {"statusCode": 200,
-            "headers": {"content-type": "text/html"},
-            "body": json.dumps(result)}
-    else:    
-        html = """
+    html = """
         <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -83,7 +69,25 @@ def handler(event, context):
     </html>
         
         """
-        
+    
+    http_method = event.get('httpMethod')
+    
+    if http_method == 'GET':
         return {"statusCode": 200,
                 "headers": {"content-type": "text/html"},
                 "body": html}
+    elif http_method == 'POST':
+        body = json.loads(event['body'])
+        text = body['text']
+        functionARN = os.getenv("functionARN1")
+        if "functionARN" in body:
+            functionARN = body['functionARN']
+    
+        result = get_response(text, functionARN)
+        return {"statusCode": 200,
+            "headers": {"content-type": "text/html"},
+            "body": json.dumps(result)}
+    else:    
+        return {"statusCode": 200,
+                "headers": {"content-type": "text/html"},
+                "body": "Invalid HTTP Method"}
