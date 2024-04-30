@@ -5,15 +5,15 @@ SPDX-License-Identifier: MIT-0
 
 import os
 from pathlib import Path
+from constructs import Construct
+from aws_cdk import App, Stack, Duration, RemovalPolicy, Tags
 from aws_cdk import (
     aws_lambda as lambda_,
     aws_efs as efs,
     aws_ec2 as ec2,
     aws_apigateway as apigateway
 )
-from aws_cdk import App, Stack, Duration, RemovalPolicy, Tags
 
-from constructs import Construct
 
 class ServerlessHuggingFaceDemoStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
@@ -42,6 +42,7 @@ class ServerlessHuggingFaceDemoStack(Stack):
 
         # Will will collect the ARNs of the Docker Lambdas to pass to the router lambda's environment.
         passed_environment_variables = {}
+
         for path in pathlist:
             count += 1
             base = os.path.basename(path)
@@ -59,6 +60,7 @@ class ServerlessHuggingFaceDemoStack(Stack):
                 filesystem=lambda_.FileSystem.from_efs_access_point(access_point, '/mnt/hf_models_cache'),
                 environment={"TRANSFORMERS_CACHE": "/mnt/hf_models_cache"},
             )
+            # Save the ARN of each Docker Lambda Function to pass to the router lambda
             passed_environment_variables["functionARN"+str(count)] = docker_lambda.function_arn
             docker_lambdas.append(docker_lambda)
         passed_environment_variables["functionCount"] = str(count)
