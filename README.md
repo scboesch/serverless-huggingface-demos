@@ -1,0 +1,1 @@
+# serverless-huggingface-demos
