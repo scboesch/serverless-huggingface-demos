@@ -14,9 +14,8 @@ includes [Amazon Elastic File System](https://aws.amazon.com/efs/) (EFS)
 storage that is attached to the Lambda functions to cache the
 pre-trained models and reduce inference latency.
 
-TBD: Update Architecture diagram
+![Architecture diagram](images/diagram.png)
 
-![Architecture diagram](serverless-hugging-face.png)
 In this architectural diagram:
 1.  Serverless inference is achieved by using Lambda functions that are
     based on container image.
@@ -76,17 +75,17 @@ cdk deploy
 
 After running these steps, the Cloud Development Kit (CDK) will ask you to confirm that 
 you would like to deploy all of the resources required for this project 
-to the default region configured for the CDK. 
+to the default region configured for the CDK. Once you've confirmed that 
+you'd like to deploy the solution, the CDK will 
+create and configure all the services necessary to support this solution.
 
-TBD: Add confirmation image. 
 
-Once you've confirmed that you'd like to deploy the solution, the CDK will 
-create and configure all the services necessary to support this solution. 
-Once the deployment has completed, you will have a public URL that you can
-share with stakeholders which will allow them to experiement with open source
-nlp models running serverlessly in a specific AWS account and region. 
+![Architecture diagram](images/deploy-complete.png)
 
-TBD: Add image of GUI. 
+Once the deployment has completed, the output of the stack deployment will 
+be a public URL that you can share with stakeholders which will allow them 
+to experiement with open source nlp models running serverlessly in a specific 
+AWS account and region. 
 
 ## Why host open source models?
 Before we dive into the details of the solution, let's consider why we might 
@@ -200,7 +199,6 @@ Using code and software development techniques, rather than manually configuring
 4. Reusability: Code used to define infrastructure can be reused for different environments or solutions, saving time and reducing the risk of errors when configuring new infrastructure.
 5. Cost-Effective: With IaC, organizations can quickly spin up and tear down environments, which optimizes cloud resource usage and keeps costs under control.
 
-
 ## Hugging Face Models
 
 [Hugging Face](https://huggingface.co/) Transformers is a popular
@@ -295,7 +293,7 @@ if http_method == 'GET':
         "body": html}
 ```
 
-TBD: Screenshot of a GET response
+![Architecture diagram](images/gui.png)
 
 Our simple HTML form is then designed to POST the contents of a text box 
 back to our router lambda whenever the submit button is pressed. When 
@@ -338,8 +336,7 @@ def get_response(text, functionARN):
                 }
 ```
 
-TBD: Screenshot of a POST response
-
+![Architecture diagram](images/gui-response.png)
 
 ## Cleaning up
 After you are finished experimenting with this project, run ```cdk destroy``` to remove all of the associated infrastructure.
