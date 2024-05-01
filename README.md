@@ -2,7 +2,7 @@
 
 ### Note: This code is meant as a demo. You should secure access to demos once deployed. 
 
-This project builds off of the [Zero administration inference with AWS Lambda](https://github.com/aws-samples/zero-administration-inference-with-aws-lambda-for-hugging-face). Our solution leverages the techniques used to package and deploy open source natural language processing models downloaded from [Hugging Face](https://huggingface.co/) and extends the approach to provide quick prototypes to share with stateholders. At a high-level, we'd like to be able to select a new open source model from Hugging Face and have a prototype that we could share with stakeholders as quickly as possible with minimal code development or changes. 
+This project builds off of the [Zero administration inference with AWS Lambda](https://github.com/aws-samples/zero-administration-inference-with-aws-lambda-for-hugging-face). Our solution leverages the techniques used to package and deploy open source natural language processing models downloaded from [Hugging Face](https://huggingface.co/) and extends the approach to provide quick prototypes to share with stakeholders. At a high level, we'd like to be able to select a new open source model from Hugging Face and have a prototype that we could share with stakeholders as quickly as possible with minimal code development or changes.
 
 ## Overview
 
@@ -18,14 +18,14 @@ pre-trained models and reduce inference latency.
 
 In this architectural diagram:
 1.  Serverless inference is achieved by using Lambda functions that are
-    based on container image.
+    based on container images.
 2.  The container image is stored in an [Amazon Elastic Container
     Registry](https://aws.amazon.com/ecr/) (ECR) repository within your
     account.
 3.  Pre-trained models are automatically downloaded from Hugging Face
     the first time the function is invoked.
 4.  Pre-trained models are cached within Amazon Elastic File System
-    storage in order to improve inference latency.
+    storage to improve inference latency.
 5.  Another Lambda function is implemented to provide a web-based user
     interface and access each model. 
 
@@ -36,19 +36,19 @@ The following software is required to run and deploy this project:
 -   [Python](https://www.python.org/) 3.6+
 -   [A virtual env](https://docs.python.org/3/library/venv.html#module-venv) (optional)
 
-Provided that the required software is in place, it should be possible to deploy a 
-new instance of this demo project by executing the following commands.  
+Provided that the required software is in place, the following commands should allow you to deploy a new instance of this demo project. 
 
 ## Deploying the example application
 1.  Clone the project to your development environment:
 ```bash
 git clone <https://github.com/aws-samples/zero-administration-inference-with-aws-lambda-for-hugging-face.git>
 ```
-2. Setup and activate a virual environment. This is optional but recommended. 
+2. Set up and activate a virtual environment. This is optional but recommended. 
 ```bash
 python -m venv .venv
 ```
 Activating your virtual environment will be different based on if you are using a MacOS, Linux, or Windows environment. 
+
 MacOS and Linux
 ```bash
 source .venv/bin/activate
@@ -92,18 +92,18 @@ Before we dive into the details of the solution, let's consider why we might
 want to work with open source models hosted in our own AWS account rather than 
 use models hosted by 3rd parties or models hosted serverlessly by AWS Bedrock. 
 Here are a few reasons. 
-1. When we host our how models, we don't have to share our data with 3rd parties. 
-2. Hugging Face hosts hundreds of thousands of models and new models are 
-uploaded every day. Being able to deploy the latest models provides a mechanism
-to leverage the latest advancements. 
+1. We don't have to share our data with 3rd parties when we host our own models. 
+2. Hugging Face hosts hundreds of thousands of models, and new models are uploaded 
+every day. Deploying the latest models provides a mechanism to leverage the latest 
+advancements.
 3. We have the flexibility to deploy fine-tuned models which are more accurate, 
 faster, or cheaper to run for our proprietary data or unique use cases.
 
 ## Architecture
-Let's take a closer look at the the resource the CDK is provisioing for this 
-application. Our recipie for this deployment can be found in the app.py file. 
-At the top of the file we can see the imports for the services that the CDK project
-will be using to deploy and configure this application. 
+Let's take a closer look at the resources the CDK provides for this application. 
+Our recipe for this deployment can be found in the app.py file. At the top of 
+the file, we can see the imports for the services the CDK project will use to 
+deploy and configure this application.
 
 ```python
 from aws_cdk import (
@@ -114,7 +114,7 @@ from aws_cdk import (
 )
 ```
 - We will be using AWS Lambda to serverlessly host our models and the user interface 
-for out app. Lambda can scale-up quickly to support hundreds of concurrent requests and 
+for our app. Lambda can scale up quickly to support hundreds of concurrent requests and 
 then scale back down to zero when there is no traffic. 
 - This project uses the Elastic File System (EFS) to cache the files for any models 
 that we download from Hugging Face. If you aren't familiar with EFS, it works as a 
@@ -127,11 +127,11 @@ will be running in.
 HTTP API to allow GET and POST requests to our application. 
 
 Unlike in the original [Zero administration inference with AWS Lambda](https://github.com/aws-samples/) 
-project, this project needs to keep track or the Amazon Resource Names (ARNs) for each Docker Lambda. 
+project, this project needs to keep track of the Amazon Resource Names (ARNs) for each Docker Lambda. 
 ARNs uniquely identify AWS resources and the router Lambda function will use the ARNs to 
 call each Docker lambda function that gets created. The CDK project saves the ARNs for 
-each Docker lambda in a dictionary which will later be passed to the router lambda a 
-environment variables. 
+each Docker lambda in a dictionary, which will later be passed to the router lambda 
+as environment variables.
 
 ```python
 passed_environment_variables["functionARN"+str(count)] = docker_lambda.function_arn
@@ -188,21 +188,26 @@ provide invoke permission.
 ```
 
 ## Infrastucture as Code
-The app.py file defines all of the resources needed to run our application. Defining all 
-of our infrastructure resources as code is referred to as Infrastructure as Code (IaC). 
-Using code and software development techniques, rather than manually configuring systems enables developers and IT operations teams to automatically provision resources. This provides some key benifits such as:
+The app.py file defines all of the resources needed to run our application. Defining 
+all of our infrastructure resources as code is called Infrastructure as Code (IaC). 
+Using code and software development techniques, rather than manually configuring 
+systems, enables developers and IT operations teams to provision resources automatically. 
+This provides some key benefits such as:
 
 # Key Features of Infrastructure as Code:
 1. Automation: IaC automates the provisioning of infrastructure, reducing the human error associated with manual setups. It allows for the quick setup of environments from development to production through scripts.
 2. Consistency: By defining your infrastructure in source code, IaC helps maintain consistency across environments, reducing discrepancies and incompatibilities between development, testing, and production environments.
-3. Version Control: Infrastructure configurations can be versioned and tracked using the same version control systems used for software development (such as Git). This enables changes to be tracked over time, rollbacks to be made if necessary, and understanding who made changes and why.
+3. Version Control: Infrastructure configurations can be versioned and tracked using 
+the same version control systems used for software development (such as Git). This 
+enables changes to be tracked over time, rollbacks to be made if necessary, and an 
+understanding of who made changes and why.
 4. Reusability: Code used to define infrastructure can be reused for different environments or solutions, saving time and reducing the risk of errors when configuring new infrastructure.
 5. Cost-Effective: With IaC, organizations can quickly spin up and tear down environments, which optimizes cloud resource usage and keeps costs under control.
 
 ## Hugging Face Models
 
 [Hugging Face](https://huggingface.co/) Transformers is a popular
-open-source project that provides pre-trained, natural language
+open source project that provides pre-trained, natural language
 processing (NLP) models for a wide variety of use cases. Customers with
 minimal machine learning experience can use pre-trained models to
 enhance their applications quickly using NLP. This includes tasks such
@@ -229,7 +234,8 @@ The code is organized using the following structure:
 ```
 
 The ```inference``` directory contains:
--   The ```Dockerfile``` used to build a custom image to be able to run PyTorch Hugging Face inference using Lambda functions
+-   The ```Dockerfile``` is used to build a custom image to be able to run 
+PyTorch Hugging Face inference using Lambda functions.
 -   The Python scripts that perform the actual ML inference
 
 The ```sentiment.py``` script shows how to use a Hugging Face Transformers
@@ -271,7 +277,7 @@ def handler(event, context):
     }
     return response
 ```
-Then you would cdk deploy again to create a new Docker lambda funtion to
+Then you would cdk deploy again to create a new Docker lambda function to
 perform English to French translation:
 ```bash
 $ cdk deploy
@@ -280,8 +286,8 @@ $ cdk deploy
 ## The router lambda
 
 The code for the router lambda can be found in the ```router.py``` file in the 
-lambda directory. When the application is accessed via and HTTP GET, such was when 
-the enpoint is accessed in a web browser, the router lambda returns a simple 
+lambda directory. When the application is accessed via an HTTP GET, such as when 
+the endpoint is accessed in a web browser, the router lambda returns a simple 
 HTML form. 
 
 ```python
